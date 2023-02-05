@@ -2,6 +2,8 @@ import random
 import os
 from os.path import basename, splitext
 
+root_dir = os.path.dirname(__file__)
+
 def rand32():
     return random.randint(0, 0xFFFFFFFF)
 

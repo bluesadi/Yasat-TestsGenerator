@@ -75,4 +75,4 @@ class BinaryOperationsTestsGenerator(TestsGenerator):
             correct_results.append(correct_result)
         return src_files, correct_results
     
-TestsGenerator.register_generator(BinaryOperationsTestsGenerator)
+TestsGenerator.register_generator('binary_operations', BinaryOperationsTestsGenerator)

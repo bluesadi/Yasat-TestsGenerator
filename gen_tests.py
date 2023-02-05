@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import shutil
-import os
 import argparse
 
 from generators.tests_generator import TestsGenerator
-from util import mkdirs
+from util import root_dir, mkdirs
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -17,15 +16,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     tests_dir = args.tests_dir
-    root_dir = os.path.dirname(__file__)
-    src_dir = os.path.join(root_dir, 'tests_src')
-    bin_dir = os.path.join(tests_dir, 'binaries')
     num_sinks = args.number
     
-    for dir in [tests_dir, src_dir, bin_dir]:
-        mkdirs(dir)
+    mkdirs(tests_dir)
     
-    shutil.copyfile(f'{root_dir}/templates/common.py', f'{tests_dir}/common.py')
+    for template in ['common.py', '__init__.py']: 
+        shutil.copyfile(f'{root_dir}/templates/{template}', f'{tests_dir}/{template}')
     
-    for generator in TestsGenerator.registered_generators:
-        generator(tests_dir, src_dir, bin_dir, num_sinks)
+    for module_name, generator in TestsGenerator.registered_generators.items():
+        generator(module_name, tests_dir, num_sinks)

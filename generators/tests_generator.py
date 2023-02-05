@@ -2,23 +2,27 @@ from __future__ import annotations
 import os
 from typing import Type, List, Any, Tuple
 
-from util import basename, splitext
+from util import root_dir, basename, splitext, mkdirs
 
 class TestsGenerator:
     
-    registered_generators = []
+    registered_generators = {}
     
     _compilers = {
         'arm': 'arm-linux-gnueabihf-gcc',
         'mips': 'mipsel-linux-gnu-gcc'
     }
     
-    def __init__(self, tests_dir, src_dir, bin_dir, num_sinks):
+    def __init__(self, module_name, tests_dir, num_sinks):
+        self.module_name = module_name
         self.tests_dir = tests_dir
-        self.src_dir = src_dir
-        self.bin_dir = bin_dir
         self.num_sinks = num_sinks
         self.addtional_options = ''
+        self.src_dir = f'{root_dir}/tests_src/{self.module_name}'
+        self.bin_dir = f'{tests_dir}/binaries/{self.module_name}'
+            
+        mkdirs(self.src_dir)
+        mkdirs(self.bin_dir)
         
         self._generate()
        
@@ -40,15 +44,15 @@ class TestsGenerator:
         return bin_files
     
     def _generate_py_files(self, bin_files: List[str], correct_results: List[Any]):
-        for bin_file, correct_result in zip(bin_files, correct_results):
-            bin_name = basename(bin_file)
-            with open(f'{self.tests_dir}/test_{bin_name}.py', 'w') as fd:
-                fd.write('from .common import run_backward_slicing_on_binary\n\n')
+        with open(f'{self.tests_dir}/test_{self.module_name}.py', 'w') as fd:
+            fd.write('from .common import run_backward_slicing_on_binary\n\n')
+            for bin_file, correct_result in zip(bin_files, correct_results):
+                bin_name = basename(bin_file)
                 for arch in self._compilers:
-                    fd.write(f'def test_{basename(bin_name)}_{arch}():\n'
-                             f'\tassert run_backward_slicing_on_binary(\'binaries/{bin_name}_{arch}\')' 
+                    fd.write(f'def test_{bin_name}_{arch}():\n'
+                             f'\tassert run_backward_slicing_on_binary(\'binaries/{self.module_name}/{bin_name}_{arch}\')' 
                              f' == {correct_result}\n\n')
     
     @staticmethod
-    def register_generator(generator: Type[TestsGenerator]):
-        TestsGenerator.registered_generators.append(generator)
+    def register_generator(module_name, generator: Type[TestsGenerator]):
+        TestsGenerator.registered_generators[module_name] = generator
