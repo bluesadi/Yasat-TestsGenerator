@@ -36,6 +36,27 @@ def xor32(a, b):
 def land32(a, b):
     return c_bool(a and b).value
 
+def lor32(a, b):
+    return c_bool(a or b).value
+
+def eq32(a, b):
+    return c_bool(a == b).value
+
+def ne32(a, b):
+    return c_bool(a != b).value
+
+def le32(a, b):
+    return c_bool(a <= b).value
+
+def lt32(a, b):
+    return c_bool(a < b).value
+
+def ge32(a, b):
+    return c_bool(a >= b).value
+
+def gt32(a, b):
+    return c_bool(a > b).value
+
 bin_ops = [
     (add32, '+', 'int32_t'),
     (sub32, '-', 'int32_t'),
@@ -46,7 +67,14 @@ bin_ops = [
     (and32, '&', 'int32_t'),
     (or32, '|', 'int32_t'),
     (xor32, '^', 'int32_t'),
-    (land32, '&&', 'int32_t')
+    (land32, '&&', 'int32_t'),
+    (lor32, '||', 'int32_t'),
+    (eq32, '==', 'int32_t'),
+    (ne32, '!=', 'int32_t'),
+    (le32, '<=', 'int32_t'),
+    (lt32, '<', 'int32_t'),
+    (ge32, '>=', 'int32_t'),
+    (gt32, '>', 'int32_t'),
 ]
 
 class BinaryOperationsTestsGenerator(TestsGenerator):
@@ -69,6 +97,12 @@ class BinaryOperationsTestsGenerator(TestsGenerator):
                     b = rand32()
                     if func in [sar32, shr32, shl32]:
                         b = b % 32
+                    elif func in [land32, lor32]:
+                        if rand32() % 2:
+                            b = 0
+                    elif func in [eq32, ne32]:
+                        if rand32() % 2:
+                            b = a
                     correct_result.append(func(a, b))
                     fd.write(f'\tsink({func_name}({a}, {b}));\n')
                 fd.write('}')

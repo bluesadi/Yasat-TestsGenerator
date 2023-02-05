@@ -16,7 +16,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     tests_dir = args.tests_dir
-    num_sinks = args.number
+    num_sinks = int(args.number)
     
     mkdirs(tests_dir)
     
