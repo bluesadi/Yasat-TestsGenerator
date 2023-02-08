@@ -12,7 +12,7 @@ if __name__ == '__main__':
                         default='tests')
     parser.add_argument('-n', '--number', 
                         help='The number of calls to sink function inserted in a single test',
-                        default=100)
+                        default=50)
     args = parser.parse_args()
     
     tests_dir = args.tests_dir
