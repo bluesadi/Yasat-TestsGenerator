@@ -1,7 +1,7 @@
 from ctypes import *
 import os
 
-from generators.tests_generator import TestsGenerator
+from generators.tests_generator import TestsGenerator, TestCase, TestFunction
 from util import rand32
 
 
@@ -21,27 +21,22 @@ unary_ops = [
 
 class UnaryOperationsTestsGenerator(TestsGenerator):
     def _generate_test_cases(self):
-        src_files = []
-        correct_results = []
+        test_cases = []
         for func, op_name, var_type in unary_ops:
-            correct_result = []
             func_name = func.__name__
-            src_file = os.path.join(self.src_dir, f"{func_name}.c")
-            src_files.append(src_file)
-            with open(src_file, "w") as fd:
-                fd.write(
-                    f"#include <stdint.h>\n\n"
-                    f"void sink({var_type} a){{ }}\n\n"
-                    f"{var_type} {func_name}({var_type} a){{\n\treturn {op_name}a;\n}}\n\n"
-                    "int main(){\n"
-                )
-                for _ in range(self.num_sinks):
-                    a = rand32()
-                    correct_result.append(func(a))
-                    fd.write(f"\tsink({func_name}({a}));\n")
-                fd.write("}")
-            correct_results.append(correct_result)
-        return src_files, correct_results
+            test_case = (
+                TestCase(f"{func_name}.c")
+                .add_includes("stdint.h")
+                .add_function(TestFunction("sink", args=[f"{var_type} a"]))
+                .add_function(TestFunction(func_name, args=[f"{var_type} a"], return_type=var_type)
+                              .create_line(f"return {op_name}a;"))
+            )
+            for _ in range(self.num_sinks):
+                a = rand32()
+                test_case.expected_results.append(func(a))
+                test_case.main.create_call("sink", args=[f"{func_name}({a})"])
+            test_cases.append(test_case)
+        return test_cases
 
 
 TestsGenerator.register_generator("unary_operations", UnaryOperationsTestsGenerator)

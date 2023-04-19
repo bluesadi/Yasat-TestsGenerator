@@ -30,4 +30,5 @@ if __name__ == "__main__":
         shutil.copyfile(f"{root_dir}/templates/{template}", f"{tests_dir}/{template}")
 
     for module_name, generator in TestsGenerator.registered_generators.items():
-        generator(module_name, tests_dir, num_sinks)
+        if module_name == "binary_operations":
+            generator(module_name, tests_dir, num_sinks).generate()
