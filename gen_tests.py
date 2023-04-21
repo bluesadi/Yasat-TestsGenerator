@@ -17,7 +17,7 @@ if __name__ == "__main__":
         "-n",
         "--number",
         help="The number of calls to sink function inserted in a single test",
-        default=50,
+        default=25,
     )
     args = parser.parse_args()
 
@@ -30,5 +30,4 @@ if __name__ == "__main__":
         shutil.copyfile(f"{root_dir}/templates/{template}", f"{tests_dir}/{template}")
 
     for module_name, generator in TestsGenerator.registered_generators.items():
-        if module_name == "binary_operations":
-            generator(module_name, tests_dir, num_sinks).generate()
+        generator(module_name, tests_dir, num_sinks).generate()
