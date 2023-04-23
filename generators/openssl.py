@@ -34,6 +34,18 @@ class OpenSSLTestsGenerator(TestsGenerator):
             test_case.main.create_call("RSA_generate_key", args=(rand_bits, 0, 0 , 0))
             test_case.expected_results.append(rand_bits)
         test_cases.append(test_case)
+        # 
+        test_case = (
+            TestCase("EVP_aes_128_ecb.c", sink_name="EVP_BytesToKey", sink_idx=0)
+            .add_includes("unistd.h", "common.h", "openssl/evp.h")
+        )
+        for _ in range(self.num_sinks):
+            test_case.main.create_call("EVP_BytesToKey", args=("EVP_aes_128_ecb()", "EVP_sha256()", 
+                                                               "rand_bytes(8)",
+                                                               "(unsigned char *)rand_bytes(8)", 8, 
+                                                               1000, "NULL", "NULL"))
+            test_case.expected_results.append("EVP_aes_128_ecb")
+        test_cases.append(test_case)
         return test_cases
     
 TestsGenerator.register_generator("openssl", OpenSSLTestsGenerator)

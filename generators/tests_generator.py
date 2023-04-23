@@ -116,7 +116,9 @@ class TestsGenerator:
                 for arch in self._compilers:
                     fd.write(
                         f"def test_{bin_name}_{arch}():\n"
-                        f"\tassert run_backward_slicing_on_binary('binaries/{self._module_name}/{bin_name}_{arch}', '{sink_name}', {sink_idx})"
+                        f"\tassert run_backward_slicing_on_binary('binaries/{self._module_name}/"
+                        f"{bin_name}_{arch}', '{sink_name}', {sink_idx}, "
+                        f"cast_to={type(correct_result[0]).__name__})"
                         f" == {correct_result}\n\n"
                     )
 
